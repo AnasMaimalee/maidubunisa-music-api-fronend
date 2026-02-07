@@ -1,4 +1,3 @@
-// File: src/components/PlayerControls.tsx
 import React, { useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
@@ -24,38 +23,71 @@ const PlayerControls: React.FC = () => {
   const isPlaying = playbackState === 'playing';
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.card }]}>
-      <TouchableOpacity onPress={skipToPrevious}>
-        <Icon name="skip-previous" size={36} color={themeColors.primary} />
-      </TouchableOpacity>
+    <View style={[styles.wrapper]}>
+      <View style={[styles.container, { backgroundColor: themeColors.card }]}>
+        
+        {/* Shuffle */}
+        <TouchableOpacity
+          onPress={toggleShuffle}
+          style={[
+            styles.smallButton,
+            isShuffling && {
+              backgroundColor: themeColors.primary + '22',
+              transform: [{ scale: 1.1 }],
+            },
+          ]}
+        >
+          <Icon
+            name="shuffle"
+            size={24}
+            color={isShuffling ? themeColors.primary : themeColors.text}
+          />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={togglePlayPause}>
-        <Icon
-          name={isPlaying ? 'pause-circle-filled' : 'play-circle-filled'}
-          size={60}
-          color={themeColors.primary}
-        />
-      </TouchableOpacity>
+        {/* Previous */}
+        <TouchableOpacity onPress={skipToPrevious}>
+          <Icon name="skip-previous" size={34} color={themeColors.text} />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={skipToNext}>
-        <Icon name="skip-next" size={36} color={themeColors.primary} />
-      </TouchableOpacity>
+        {/* Play / Pause */}
+        <TouchableOpacity
+          onPress={togglePlayPause}
+          style={[
+            styles.playButton,
+            { backgroundColor: themeColors.primary },
+          ]}
+        >
+          <Icon
+            name={isPlaying ? 'pause' : 'play-arrow'}
+            size={36}
+            color="#fff"
+          />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={toggleLoop}>
-        <Icon
-          name="loop"
-          size={28}
-          color={isLooping ? themeColors.accent : themeColors.text}
-        />
-      </TouchableOpacity>
+        {/* Next */}
+        <TouchableOpacity onPress={skipToNext}>
+          <Icon name="skip-next" size={34} color={themeColors.text} />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={toggleShuffle}>
-        <Icon
-          name="shuffle"
-          size={28}
-          color={isShuffling ? themeColors.accent : themeColors.text}
-        />
-      </TouchableOpacity>
+        {/* Repeat */}
+        <TouchableOpacity
+          onPress={toggleLoop}
+          style={[
+            styles.smallButton,
+            isLooping && {
+              backgroundColor: themeColors.primary + '22',
+              transform: [{ scale: 1.1 }],
+            },
+          ]}
+        >
+          <Icon
+            name="repeat"
+            size={24}
+            color={isLooping ? themeColors.primary : themeColors.text}
+          />
+        </TouchableOpacity>
+
+      </View>
     </View>
   );
 };
@@ -63,12 +95,45 @@ const PlayerControls: React.FC = () => {
 export default PlayerControls;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    padding: 16,
+  },
+
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 30,
+
+    // elevation / shadow
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
+  },
+
+  playButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 10,
+  },
+
+  smallButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
