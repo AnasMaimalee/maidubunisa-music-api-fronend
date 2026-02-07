@@ -10,33 +10,39 @@ import FavoriteButton from './FavoriteButton';
 import { ThemeContext } from '../context/ThemeContext';
 import { Colors } from '../styles/global';
 
-type ThemeColors = typeof Colors.light;
-
 export interface Song {
   id: string;
   title: string;
-  file_size?: number; // bytes
+  url: string;          // FULL URL REQUIRED
+  duration?: number;    // seconds
+  file_size?: number;   // bytes
 }
 
 interface SongCardProps {
   song: Song;
-  onPress: () => void;
+  onPress: (song: Song) => void;
 }
 
 const formatSize = (bytes?: number) => {
   if (!bytes) return '';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const formatDuration = (seconds?: number) => {
+  if (!seconds) return '';
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
 const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
-  const themeContext = useContext(ThemeContext);
-  const themeKey: 'light' | 'dark' = themeContext?.theme ?? 'dark';
-  const themeColors: ThemeColors = Colors[themeKey];
+  const { theme } = useContext(ThemeContext);
+  const themeColors = Colors[theme] ?? Colors.dark;
 
   return (
     <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
+      activeOpacity={0.8}
+      onPress={() => onPress(song)}
       style={[
         styles.container,
         { backgroundColor: themeColors.card },
@@ -56,18 +62,24 @@ const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
       <View style={styles.textWrapper}>
         <Text
           numberOfLines={1}
-          style={[styles.title, { color: themeColors.primary }]}
+          style={[styles.title, { color: themeColors.text }]}
         >
           {song.title}
         </Text>
 
-        {song.file_size && (
-          <Text
-            style={[styles.meta, { color: themeColors.mutedText }]}
-          >
-            {formatSize(song.file_size)}
-          </Text>
-        )}
+        <View style={styles.metaRow}>
+          {/* {song.duration && (
+            <Text style={[styles.meta, { color: themeColors.mutedText }]}>
+              {formatDuration(song.duration)}
+            </Text>
+          )} */}
+
+          {song.file_size && (
+            <Text style={[styles.meta, { color: themeColors.mutedText }]}>
+              {formatSize(song.file_size)}
+            </Text>
+          )}
+        </View>
       </View>
 
       {/* FAVORITE */}
@@ -84,8 +96,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-
-    // flat list
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ffffff12',
   },
@@ -97,8 +107,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
-
-    elevation: 5,
+    elevation: 4,
   },
 
   textWrapper: {
@@ -110,8 +119,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  metaRow: {
+    flexDirection: 'row',
+    marginTop: 4,
+  },
+
   meta: {
     fontSize: 12,
-    marginTop: 4,
   },
 });
