@@ -10,16 +10,12 @@ import FavoriteButton from './FavoriteButton';
 import { ThemeContext } from '../context/ThemeContext';
 import { Colors } from '../styles/global';
 
-// ThemeColors type
 type ThemeColors = typeof Colors.light;
 
-// Song type
 export interface Song {
   id: string;
   title: string;
   artist?: string;
-  albumId?: string;
-  duration?: number;
 }
 
 interface SongCardProps {
@@ -29,36 +25,36 @@ interface SongCardProps {
 
 const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
   const themeContext = useContext(ThemeContext);
-  const themeKey: 'light' | 'dark' = themeContext?.theme ?? 'light';
+  const themeKey: 'light' | 'dark' = themeContext?.theme ?? 'dark';
   const themeColors: ThemeColors = Colors[themeKey];
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.85}
+      activeOpacity={0.9}
       style={[
         styles.container,
-        {
-          backgroundColor: themeColors.card,
-          shadowColor: themeColors.text,
-        },
+        { backgroundColor: themeColors.card },
       ]}
     >
-      {/* LEFT: artwork placeholder */}
+      {/* NETFLIX ACCENT BAR */}
       <View
         style={[
-          styles.artwork,
-          { backgroundColor: themeColors.primary + '22' },
+          styles.accent,
+          { backgroundColor: themeColors.primary },
         ]}
-      >
+      />
+
+      {/* ICON */}
+      <View style={styles.iconWrap}>
         <MaterialIcons
           name="music-note"
-          size={20}
+          size={22}
           color={themeColors.primary}
         />
       </View>
 
-      {/* CENTER: title + artist */}
+      {/* TEXT */}
       <View style={styles.textWrapper}>
         <Text
           numberOfLines={1}
@@ -77,7 +73,7 @@ const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
         )}
       </View>
 
-      {/* RIGHT: favorite */}
+      {/* FAVORITE */}
       <FavoriteButton songId={song.id} theme={themeColors} />
     </TouchableOpacity>
   );
@@ -89,21 +85,29 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
     borderRadius: 14,
-    marginBottom: 10,
+    marginBottom: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
 
-    // shadow / elevation
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 10,
   },
 
-  artwork: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  accent: {
+    width: 4,
+    height: '100%',
+    borderRadius: 2,
+    marginRight: 12,
+  },
+
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#ffffff12',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -111,16 +115,16 @@ const styles = StyleSheet.create({
 
   textWrapper: {
     flex: 1,
-    justifyContent: 'center',
   },
 
   title: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 16.5,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
 
   artist: {
-    fontSize: 13,
-    marginTop: 2,
+    fontSize: 12.5,
+    marginTop: 4,
   },
 });

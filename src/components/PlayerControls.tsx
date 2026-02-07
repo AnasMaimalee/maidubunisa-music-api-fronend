@@ -7,7 +7,7 @@ import useTrackPlayer from '../hooks/useTrackPlayer';
 
 const PlayerControls: React.FC = () => {
   const { theme } = useContext(ThemeContext);
-  const themeColors = Colors[theme] ?? Colors.light;
+  const themeColors = Colors[theme] ?? Colors.dark;
 
   const {
     playbackState,
@@ -23,30 +23,31 @@ const PlayerControls: React.FC = () => {
   const isPlaying = playbackState === 'playing';
 
   return (
-    <View style={[styles.wrapper]}>
-      <View style={[styles.container, { backgroundColor: themeColors.card }]}>
-        
+    <View style={styles.wrapper}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: themeColors.card },
+        ]}
+      >
         {/* Shuffle */}
         <TouchableOpacity
           onPress={toggleShuffle}
           style={[
-            styles.smallButton,
-            isShuffling && {
-              backgroundColor: themeColors.primary + '22',
-              transform: [{ scale: 1.1 }],
-            },
+            styles.sideButton,
+            isShuffling && styles.activeGlow,
           ]}
         >
           <Icon
             name="shuffle"
-            size={24}
+            size={22}
             color={isShuffling ? themeColors.primary : themeColors.text}
           />
         </TouchableOpacity>
 
         {/* Previous */}
         <TouchableOpacity onPress={skipToPrevious}>
-          <Icon name="skip-previous" size={34} color={themeColors.text} />
+          <Icon name="skip-previous" size={36} color={themeColors.text} />
         </TouchableOpacity>
 
         {/* Play / Pause */}
@@ -59,34 +60,30 @@ const PlayerControls: React.FC = () => {
         >
           <Icon
             name={isPlaying ? 'pause' : 'play-arrow'}
-            size={36}
+            size={42}
             color="#fff"
           />
         </TouchableOpacity>
 
         {/* Next */}
         <TouchableOpacity onPress={skipToNext}>
-          <Icon name="skip-next" size={34} color={themeColors.text} />
+          <Icon name="skip-next" size={36} color={themeColors.text} />
         </TouchableOpacity>
 
         {/* Repeat */}
         <TouchableOpacity
           onPress={toggleLoop}
           style={[
-            styles.smallButton,
-            isLooping && {
-              backgroundColor: themeColors.primary + '22',
-              transform: [{ scale: 1.1 }],
-            },
+            styles.sideButton,
+            isLooping && styles.activeGlow,
           ]}
         >
           <Icon
             name="repeat"
-            size={24}
+            size={22}
             color={isLooping ? themeColors.primary : themeColors.text}
           />
         </TouchableOpacity>
-
       </View>
     </View>
   );
@@ -96,44 +93,49 @@ export default PlayerControls;
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: 16,
+    paddingHorizontal: 10,
+    paddingBottom: 8,
   },
 
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 30,
+    borderRadius: 36,
+    paddingVertical: 18,
+    paddingHorizontal: 22,
 
-    // elevation / shadow
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 14,
   },
 
   playButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 46,
+    height: 46,
+    borderRadius: 38,
     alignItems: 'center',
     justifyContent: 'center',
 
     shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 10,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 12,
   },
 
-  smallButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  sideButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  activeGlow: {
+    backgroundColor: '#ffffff18',
+    transform: [{ scale: 1.15 }],
   },
 });
