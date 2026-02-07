@@ -33,7 +33,7 @@ const useTrackPlayerEvents = (_events: string[], _callback: (event: any) => void
 
 export interface Track {
   id: string;
-  url?: string;
+  file_path?: string;
   title?: string;
   artist?: string;
   artwork?: string;
@@ -55,7 +55,7 @@ const useTrackPlayer = () => {
     await TrackPlayer.add(
       songs.map((song) => ({
         id: song.id,
-        url: song.url,
+        url: song.file_path,
         title: song.title,
         artist: song.artist,
         artwork: song.artwork,
@@ -80,7 +80,7 @@ const useTrackPlayer = () => {
     await TrackPlayer.add([
       {
         id: song.id,
-        url: song.url,
+        url: song.file_path,
         title: song.title,
         artist: song.artist,
         artwork: song.artwork,
