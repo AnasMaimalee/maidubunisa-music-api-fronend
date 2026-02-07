@@ -30,27 +30,21 @@ const PlayerControls: React.FC = () => {
           { backgroundColor: themeColors.card },
         ]}
       >
-        {/* Shuffle */}
-        <TouchableOpacity
-          onPress={toggleShuffle}
-          style={[
-            styles.sideButton,
-            isShuffling && styles.activeGlow,
-          ]}
-        >
+        {/* SHUFFLE */}
+        <TouchableOpacity onPress={toggleShuffle}>
           <Icon
             name="shuffle"
-            size={22}
+            size={24}
             color={isShuffling ? themeColors.primary : themeColors.text}
           />
         </TouchableOpacity>
 
-        {/* Previous */}
+        {/* PREVIOUS */}
         <TouchableOpacity onPress={skipToPrevious}>
-          <Icon name="skip-previous" size={36} color={themeColors.text} />
+          <Icon name="skip-previous" size={34} color={themeColors.text} />
         </TouchableOpacity>
 
-        {/* Play / Pause */}
+        {/* PLAY */}
         <TouchableOpacity
           onPress={togglePlayPause}
           style={[
@@ -60,27 +54,21 @@ const PlayerControls: React.FC = () => {
         >
           <Icon
             name={isPlaying ? 'pause' : 'play-arrow'}
-            size={42}
+            size={36}
             color="#fff"
           />
         </TouchableOpacity>
 
-        {/* Next */}
+        {/* NEXT */}
         <TouchableOpacity onPress={skipToNext}>
-          <Icon name="skip-next" size={36} color={themeColors.text} />
+          <Icon name="skip-next" size={34} color={themeColors.text} />
         </TouchableOpacity>
 
-        {/* Repeat */}
-        <TouchableOpacity
-          onPress={toggleLoop}
-          style={[
-            styles.sideButton,
-            isLooping && styles.activeGlow,
-          ]}
-        >
+        {/* REPEAT */}
+        <TouchableOpacity onPress={toggleLoop}>
           <Icon
             name="repeat"
-            size={22}
+            size={24}
             color={isLooping ? themeColors.primary : themeColors.text}
           />
         </TouchableOpacity>
@@ -93,49 +81,31 @@ export default PlayerControls;
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingHorizontal: 10,
-    paddingBottom: 8,
+    padding: 16,
   },
 
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: 36,
-    paddingVertical: 18,
-    paddingHorizontal: 22,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 30,
 
+    elevation: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 14,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
   },
 
   playButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 38,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
 
-    shadowColor: '#000',
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
     elevation: 12,
-  },
-
-  sideButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  activeGlow: {
-    backgroundColor: '#ffffff18',
-    transform: [{ scale: 1.15 }],
   },
 });

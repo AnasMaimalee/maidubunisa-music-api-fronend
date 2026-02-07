@@ -15,13 +15,18 @@ type ThemeColors = typeof Colors.light;
 export interface Song {
   id: string;
   title: string;
-  artist?: string;
+  file_size?: number; // bytes
 }
 
 interface SongCardProps {
   song: Song;
   onPress: () => void;
 }
+
+const formatSize = (bytes?: number) => {
+  if (!bytes) return '';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+};
 
 const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
   const themeContext = useContext(ThemeContext);
@@ -31,44 +36,36 @@ const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.9}
+      activeOpacity={0.85}
       style={[
         styles.container,
         { backgroundColor: themeColors.card },
       ]}
     >
-      {/* NETFLIX ACCENT BAR */}
+      {/* ICON */}
       <View
         style={[
-          styles.accent,
+          styles.iconWrap,
           { backgroundColor: themeColors.primary },
         ]}
-      />
-
-      {/* ICON */}
-      <View style={styles.iconWrap}>
-        <MaterialIcons
-          name="music-note"
-          size={22}
-          color={themeColors.primary}
-        />
+      >
+        <MaterialIcons name="music-note" size={22} color="#fff" />
       </View>
 
       {/* TEXT */}
       <View style={styles.textWrapper}>
         <Text
           numberOfLines={1}
-          style={[styles.title, { color: themeColors.text }]}
+          style={[styles.title, { color: themeColors.primary }]}
         >
           {song.title}
         </Text>
 
-        {song.artist && (
+        {song.file_size && (
           <Text
-            numberOfLines={1}
-            style={[styles.artist, { color: themeColors.mutedText }]}
+            style={[styles.meta, { color: themeColors.mutedText }]}
           >
-            {song.artist}
+            {formatSize(song.file_size)}
           </Text>
         )}
       </View>
@@ -85,32 +82,23 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 14,
-    marginBottom: 12,
     paddingVertical: 14,
     paddingHorizontal: 16,
 
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
-  },
-
-  accent: {
-    width: 4,
-    height: '100%',
-    borderRadius: 2,
-    marginRight: 12,
+    // flat list
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ffffff12',
   },
 
   iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#ffffff12',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 14,
+
+    elevation: 5,
   },
 
   textWrapper: {
@@ -118,13 +106,12 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 16.5,
-    fontWeight: '700',
-    letterSpacing: 0.2,
+    fontSize: 16,
+    fontWeight: '600',
   },
 
-  artist: {
-    fontSize: 12.5,
+  meta: {
+    fontSize: 12,
     marginTop: 4,
   },
 });
