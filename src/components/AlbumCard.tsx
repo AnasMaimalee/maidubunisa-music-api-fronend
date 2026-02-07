@@ -1,15 +1,7 @@
 import React, { useContext } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import colors from '../styles/colors';
 import { ThemeContext } from '../context/ThemeContext';
-
-// Type for Album prop
-interface Album {
-  id: string;
-  title: string;
-  release_date: string;
-  cover_url?: string | null; // optional
-}
+import { Album } from '../types/Album';
 
 interface AlbumCardProps {
   album: Album;
@@ -26,35 +18,41 @@ const placeholderImages = [
 
 const AlbumCard: React.FC<AlbumCardProps> = ({ album, onPress }) => {
   const themeContext = useContext(ThemeContext);
-  const theme = themeContext?.theme || 'light'; // fallback
+  const theme = themeContext?.theme ?? 'light';
 
-  // Fallback image if album.cover_url is null or empty
-  const imageUrl = album.cover_url
-    ? album.cover_url
-    : placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+  const imageUrl =
+    album.cover_url && album.cover_url.length > 0
+      ? album.cover_url
+      : placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
 
-  // Optional: enhance card colors
-  const cardColor = theme === 'dark' ? '#1E1E1E' : '#FFF';
+  const cardColor = theme === 'dark' ? '#1E1E1E' : '#FFFFFF';
   const shadowColor = theme === 'dark' ? '#000' : '#ccc';
-  const textColor = theme === 'dark' ? '#FFF' : '#333';
+  const textColor = theme === 'dark' ? '#FFFFFF' : '#333333';
 
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
       style={[
-        styles.card, 
-        { backgroundColor: cardColor, shadowColor: shadowColor }
+        styles.card,
+        { backgroundColor: cardColor, shadowColor },
       ]}
-      activeOpacity={0.8}
     >
       <Image source={{ uri: imageUrl }} style={styles.image} />
+
       <View style={styles.textContainer}>
-        <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+        <Text
+          style={[styles.title, { color: textColor }]}
+          numberOfLines={1}
+        >
           {album.title}
         </Text>
-        <Text style={[styles.subTitle, { color: textColor }]}>
-          {album.release_date}
-        </Text>
+
+        {album.release_date && (
+          <Text style={[styles.subTitle, { color: textColor }]}>
+            {album.release_date}
+          </Text>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -64,6 +62,7 @@ export default AlbumCard;
 
 const styles = StyleSheet.create({
   card: {
+    width: 140,
     borderRadius: 12,
     marginRight: 16,
     paddingBottom: 8,
@@ -71,7 +70,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 5,
-    width: 140,
   },
   image: {
     width: '100%',
@@ -81,8 +79,15 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     paddingHorizontal: 8,
-    paddingTop: 4,
+    paddingTop: 6,
   },
-  title: { fontSize: 16, fontWeight: 'bold' },
-  subTitle: { fontSize: 12, marginTop: 2 },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  subTitle: {
+    fontSize: 12,
+    marginTop: 2,
+    opacity: 0.8,
+  },
 });

@@ -7,11 +7,11 @@ import PlayerControls from '../components/PlayerControls';
 import { ThemeContext } from '../context/ThemeContext';
 import colors from '../styles/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import TrackPlayer from '../hooks/useTrackPlayer';
+import useTrackPlayer from '../hooks/useTrackPlayer';
 import api from '../plugins/api';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-// Define the types for album and song objects
+// Types
 interface Album {
   id: string;
   title: string;
@@ -27,7 +27,6 @@ interface Song {
   duration: number;
 }
 
-// Define the navigation params for this screen
 type RootStackParamList = {
   Main: undefined;
   AlbumDetails: { albumId: string };
@@ -37,9 +36,11 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Main'>;
 
 export default function MainScreen({ navigation }: Props) {
   const { theme } = useContext(ThemeContext);
+  const { playSong } = useTrackPlayer(); // ✅ INSIDE component
+
   const [albums, setAlbums] = useState<Album[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -50,7 +51,6 @@ export default function MainScreen({ navigation }: Props) {
         if (localAlbums && localSongs) {
           setAlbums(JSON.parse(localAlbums));
           setSongs(JSON.parse(localSongs));
-          setLoading(false);
           return;
         }
 
@@ -62,8 +62,8 @@ export default function MainScreen({ navigation }: Props) {
 
         await AsyncStorage.setItem('albums', JSON.stringify(albumResponse.data.data));
         await AsyncStorage.setItem('songs', JSON.stringify(songResponse.data.data));
-      } catch (error) {
-        console.log('Error fetching music data:', error);
+      } catch (e) {
+        console.log(e);
       } finally {
         setLoading(false);
       }
@@ -77,28 +77,31 @@ export default function MainScreen({ navigation }: Props) {
     <View style={[styles.container, { backgroundColor: colors[theme].background }]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={[styles.heading, { color: colors[theme].text }]}>Albums</Text>
+
         <FlatList
           data={albums}
           horizontal
-          showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) =>
-            <AlbumCard album={item} onPress={() => navigation.navigate('AlbumDetails', { albumId: item.id })} />
-          }
-          style={{ marginBottom: 24 }}
+          renderItem={({ item }) => (
+            <AlbumCard
+              album={item}
+              onPress={() => navigation.navigate('AlbumDetails', { albumId: item.id })}
+            />
+          )}
         />
 
         <Text style={[styles.heading, { color: colors[theme].text }]}>Songs</Text>
+
         <FlatList
           data={songs}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) =>
+          scrollEnabled={false}
+          renderItem={({ item }) => (
             <SongCard
               song={item}
-              onPress={() => TrackPlayer.playSong(item)}
+              onPress={() => playSong(item)} // ✅ WORKS
             />
-          }
-          scrollEnabled={false}
+          )}
         />
       </ScrollView>
 
