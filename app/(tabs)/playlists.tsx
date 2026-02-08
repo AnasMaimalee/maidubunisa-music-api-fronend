@@ -98,22 +98,22 @@ export default function PlaylistScreen() {
     await loadPlaylists();
   };
 
-  // Load all songs
   const loadAllSongs = async () => {
-    try {
-      const res = await api.get('/songs');
-      const songs: Song[] = res.data.data.map((song: any) => ({
-        id: song.id,
-        title: song.title,
-        url: song.url,
-        duration: song.duration,
-        file_size: song.file_size,
-      }));
-      setAllSongs(songs);
-    } catch (e) {
-      console.log('Failed to load songs:', e);
-    }
-  };
+  try {
+    const res = await api.get('/songs'); // your backend API
+    const songs: Song[] = res.data.data.map((song: any) => ({
+      id: song.id,
+      title: song.title,
+      url: song.url,               // Mobile streaming
+      duration: song.duration,
+      file_size: song.file_size,
+      file_path: song.file_path || `songs/audio/${song.title}.mp3`, // Offline web
+    }));
+    setAllSongs(songs);
+  } catch (e) {
+    console.log('Failed to load songs:', e);
+  }
+};
 
   useEffect(() => {
     loadPlaylists();

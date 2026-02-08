@@ -1,3 +1,4 @@
+// src/components/PlayerControls.tsx - NO OVERLAP
 import React, { useRef } from 'react';
 import {
   View,
@@ -12,8 +13,7 @@ import { Colors } from '../styles/global';
 import useTrackPlayer from '../hooks/useTrackPlayer';
 
 const PlayerControls: React.FC = () => {
-  const themeColors = Colors; // LIGHT MODE ONLY
-
+  const themeColors = Colors;
   const {
     playbackState,
     togglePlayPause,
@@ -26,8 +26,6 @@ const PlayerControls: React.FC = () => {
   } = useTrackPlayer();
 
   const isPlaying = playbackState === 'playing';
-
-  // Play button animation
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressPlay = () => {
@@ -45,7 +43,6 @@ const PlayerControls: React.FC = () => {
         easing: Easing.out(Easing.ease),
       }),
     ]).start();
-
     togglePlayPause();
   };
 
@@ -102,13 +99,17 @@ const PlayerControls: React.FC = () => {
 export default PlayerControls;
 
 const styles = StyleSheet.create({
-  wrapper: { padding: 16 },
+  wrapper: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    // ✅ NO ABSOLUTE POSITIONING - Normal flex flow
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
     borderRadius: 30,
     elevation: 12,
     shadowColor: '#000',
@@ -117,8 +118,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
   },
   iconButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -145,5 +146,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  loopText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  loopText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
 });

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://born-quarters-flour-aspects.trycloudflare.com/api/v1';
+const BASE_URL = 'https://fatidic-elin-unelective.ngrok-free.dev/api/v1';
 
 const api = axios.create({
   baseURL: BASE_URL,

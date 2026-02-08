@@ -14,6 +14,7 @@ export interface Song {
   title: string;
   url: string;
   duration?: number;
+  file_path?: string;
   file_size?: number;
 }
 

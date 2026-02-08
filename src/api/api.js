@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://born-quarters-flour-aspects.trycloudflare.com/api/v1',
+  baseURL: 'https://fatidic-elin-unelective.ngrok-free.dev/api/v1',
   timeout: 5000,
 });
 
