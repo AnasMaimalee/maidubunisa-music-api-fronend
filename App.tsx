@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-// App.tsx - FULLY WORKING (Player route + GlobalPlayer)
-=======
 // App.tsx - 100% PHONE AUDIO FIXED
->>>>>>> parent of d226c5a (fix: playercontrol pause:play)
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,10 +8,7 @@ import * as Audio from 'expo-av'; // 🔥 REQUIRED FOR PHONE SOUND
 import MainScreen from './src/screens/MainScreen';
 import PlayerScreen from './src/screens/PlayerScreen';
 import SettingsScreen from './app/(tabs)/settings';
-<<<<<<< HEAD
 import GlobalPlayer from './src/components/GlobalPlayer';
-=======
->>>>>>> parent of d226c5a (fix: playercontrol pause:play)
 
 import { TrackPlayerProvider } from './src/context/TrackPlayerContext';
 import { ThemeProvider } from './src/context/ThemeContext';
@@ -28,19 +21,6 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-<<<<<<< HEAD
-// 🔥 CORRECTED WRAPPER - GlobalPlayer on ALL screens
-function ScreenWithGlobalPlayer({ children }: { children: React.ReactNode }) {
-  return (
-    <View style={{ flex: 1 }}>
-      {children}
-      <GlobalPlayer />
-    </View>
-  );
-}
-
-=======
->>>>>>> parent of d226c5a (fix: playercontrol pause:play)
 export default function App() {
   // 🔥 PHONE AUDIO SESSION - RUNS FIRST
   useEffect(() => {
@@ -68,36 +48,11 @@ export default function App() {
       <TrackPlayerProvider>
         <NavigationContainer>
           <StatusBar style="light" />
-<<<<<<< HEAD
-          <Stack.Navigator 
-            initialRouteName="Home"
-            screenOptions={{ headerShown: false }}
-          >
-            {/* ✅ HOME SCREEN */}
-            <Stack.Screen 
-              name="Home" 
-              component={MainScreen}
-              options={{ headerShown: false }}
-            />
-            
-            {/* ✅ PLAYER SCREEN - THIS FIXES THE ERROR */}
-            <Stack.Screen 
-              name="Player" 
-              component={PlayerScreen}
-              options={{ headerShown: false }}
-            />
-            
-            {/* ✅ SETTINGS SCREEN */}
-            <Stack.Screen 
-              name="Settings" 
-              component={SettingsScreen}
-=======
           <Stack.Navigator initialRouteName="Home">
             <Stack.Screen name="Home" component={MainScreen} options={{ headerShown: false }} />
             <Stack.Screen 
               name="Player" 
               component={PlayerScreen} 
->>>>>>> parent of d226c5a (fix: playercontrol pause:play)
               options={{ headerShown: false }}
             />
             <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
