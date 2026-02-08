@@ -8,7 +8,6 @@ import * as Audio from 'expo-av'; // 🔥 REQUIRED FOR PHONE SOUND
 import MainScreen from './src/screens/MainScreen';
 import PlayerScreen from './src/screens/PlayerScreen';
 import SettingsScreen from './app/(tabs)/settings';
-import GlobalPlayer from './src/components/GlobalPlayer';
 
 import { TrackPlayerProvider } from './src/context/TrackPlayerContext';
 import { ThemeProvider } from './src/context/ThemeContext';
