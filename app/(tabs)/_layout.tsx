@@ -1,10 +1,8 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
 
 export default function TabLayout() {
   return (
@@ -12,15 +10,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarActiveTintColor: '#fff', // active icon white
-        tabBarInactiveTintColor: '#ffffffAA', // inactive icons semi-transparent
+        tabBarActiveTintColor: '#fff',       // active icon color (opaque white)
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)', // darker semi-transparent for better contrast on green
         tabBarStyle: {
           position: 'absolute',
           bottom: 0,
           left: 16,
           right: 16,
           height: 70,
-          backgroundColor: '#1DB954', // full primary background
+          backgroundColor: '#1DB954', // primary green
           flexDirection: 'row',
           justifyContent: 'space-around',
           alignItems: 'center',
@@ -29,10 +27,11 @@ export default function TabLayout() {
           shadowOpacity: 0.25,
           shadowRadius: 10,
           elevation: 10,
-          overflow: 'hidden',
+          borderRadius: 20, // round edges
         },
       }}
     >
+      {/* Home */}
       <Tabs.Screen
         name="index"
         options={{
@@ -44,8 +43,10 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* Playlists */}
       <Tabs.Screen
-        name="playlist"
+        name="playlists"
         options={{
           title: 'Playlist',
           tabBarIcon: ({ color, focused }) => (
@@ -55,6 +56,8 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* Favorites - Fixed: Uses consistent stroke-based icons + better inactive color */}
       <Tabs.Screen
         name="favorites"
         options={{
@@ -63,13 +66,15 @@ export default function TabLayout() {
             <View style={[styles.iconWrapper, focused && styles.activeTab]}>
               <IconSymbol
                 size={28}
-                name={focused ? 'favorite' : 'favorite-border'}
+                name={focused ? 'heart.fill' : 'heart'} // filled active, outline inactive (both visible now)
                 color={color}
               />
             </View>
           ),
         }}
       />
+
+      {/* Settings */}
       <Tabs.Screen
         name="settings"
         options={{
@@ -87,12 +92,12 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   iconWrapper: {
-    padding: 10,
-    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,   // enough space so icon is always visible
+    borderRadius: 12,
   },
   activeTab: {
-    backgroundColor: 'rgba(0,0,0,0.2)', // subtle darker overlay for active
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: 'rgba(0,0,0,0.2)', // subtle overlay for focused tab
   },
 });
