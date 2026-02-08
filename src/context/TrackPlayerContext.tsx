@@ -1,23 +1,27 @@
 // src/context/TrackPlayerContext.tsx
-import React, { createContext, useContext } from 'react';
-import useTrackPlayer from '../hooks/useTrackPlayer';
+import React, { createContext, useState, ReactNode } from 'react';
 
-const TrackPlayerContext = createContext<ReturnType<typeof useTrackPlayer> | null>(null);
+interface TrackPlayerContextType {
+  speed: number;
+  looping: boolean;
+  shuffling: boolean;
+  setSpeed: (s: number) => void;
+  setLooping: (b: boolean) => void;
+  setShuffling: (b: boolean) => void;
+}
 
-export const TrackPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const trackPlayer = useTrackPlayer();
+export const TrackPlayerContext = createContext<TrackPlayerContextType | undefined>(undefined);
+
+interface Props { children: ReactNode }
+
+export const TrackPlayerProvider: React.FC<Props> = ({ children }) => {
+  const [speed, setSpeed] = useState(1);
+  const [looping, setLooping] = useState(false);
+  const [shuffling, setShuffling] = useState(false);
 
   return (
-    <TrackPlayerContext.Provider value={trackPlayer}>
+    <TrackPlayerContext.Provider value={{ speed, looping, shuffling, setSpeed, setLooping, setShuffling }}>
       {children}
     </TrackPlayerContext.Provider>
   );
-};
-
-export const useTrackPlayerContext = () => {
-  const context = useContext(TrackPlayerContext);
-  if (!context) {
-    throw new Error('useTrackPlayerContext must be used inside TrackPlayerProvider');
-  }
-  return context;
 };

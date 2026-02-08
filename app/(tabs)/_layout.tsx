@@ -27,7 +27,7 @@ export default function TabLayout() {
           shadowOpacity: 0.25,
           shadowRadius: 10,
           elevation: 10,
-          borderRadius: 20, // round edges
+          borderRadius: 0, // round edges
         },
       }}
     >
