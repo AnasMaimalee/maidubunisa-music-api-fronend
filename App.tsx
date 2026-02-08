@@ -1,26 +1,34 @@
+<<<<<<< HEAD
 // App.tsx - FULLY WORKING (Player route + GlobalPlayer)
+=======
+// App.tsx - 100% PHONE AUDIO FIXED
+>>>>>>> parent of d226c5a (fix: playercontrol pause:play)
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import * as Audio from 'expo-av';
+import * as Audio from 'expo-av'; // 🔥 REQUIRED FOR PHONE SOUND
 
 import MainScreen from './src/screens/MainScreen';
 import PlayerScreen from './src/screens/PlayerScreen';
 import SettingsScreen from './app/(tabs)/settings';
+<<<<<<< HEAD
 import GlobalPlayer from './src/components/GlobalPlayer';
+=======
+>>>>>>> parent of d226c5a (fix: playercontrol pause:play)
 
 import { TrackPlayerProvider } from './src/context/TrackPlayerContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 
 export type RootStackParamList = {
   Home: undefined;
-  Player: { song: any };
+  Player: { song: any }; // ✅ Full song object
   Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+<<<<<<< HEAD
 // 🔥 CORRECTED WRAPPER - GlobalPlayer on ALL screens
 function ScreenWithGlobalPlayer({ children }: { children: React.ReactNode }) {
   return (
@@ -31,14 +39,28 @@ function ScreenWithGlobalPlayer({ children }: { children: React.ReactNode }) {
   );
 }
 
+=======
+>>>>>>> parent of d226c5a (fix: playercontrol pause:play)
 export default function App() {
+  // 🔥 PHONE AUDIO SESSION - RUNS FIRST
   useEffect(() => {
-    Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-      playThroughEarpieceAndroid: false,
-    }).catch(console.error);
+    const initAudio = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,        // 🔥 BYPASS SILENT MODE
+          staysActiveInBackground: true,     // Background playback
+          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+          playThroughEarpieceAndroid: false, // Speaker NOT earpiece
+          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          shouldDuckAndroid: false,
+        });
+        console.log('🔊 ✅ PHONE AUDIO SESSION ACTIVE');
+      } catch (e) {
+        console.error('❌ Audio init failed:', e);
+      }
+    };
+    initAudio();
   }, []);
 
   return (
@@ -46,6 +68,7 @@ export default function App() {
       <TrackPlayerProvider>
         <NavigationContainer>
           <StatusBar style="light" />
+<<<<<<< HEAD
           <Stack.Navigator 
             initialRouteName="Home"
             screenOptions={{ headerShown: false }}
@@ -68,8 +91,16 @@ export default function App() {
             <Stack.Screen 
               name="Settings" 
               component={SettingsScreen}
+=======
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen name="Home" component={MainScreen} options={{ headerShown: false }} />
+            <Stack.Screen 
+              name="Player" 
+              component={PlayerScreen} 
+>>>>>>> parent of d226c5a (fix: playercontrol pause:play)
               options={{ headerShown: false }}
             />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </TrackPlayerProvider>
