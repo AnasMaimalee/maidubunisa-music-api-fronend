@@ -38,7 +38,7 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activeTab]}>
-              <IconSymbol size={28} name="house.fill" color={color} />
+              <IconSymbol size={40} name="house.fill" color={color} />
             </View>
           ),
         }}
@@ -51,7 +51,7 @@ export default function TabLayout() {
           title: 'Playlist',
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activeTab]}>
-              <IconSymbol size={28} name="music.note.list" color={color} />
+              <IconSymbol size={40} name="music.note.list" color={color} />
             </View>
           ),
         }}
@@ -65,7 +65,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activeTab]}>
               <IconSymbol
-                size={28}
+                size={40}
                 name={focused ? 'heart.fill' : 'heart'} // filled active, outline inactive (both visible now)
                 color={color}
               />
@@ -81,7 +81,7 @@ export default function TabLayout() {
           title: 'Settings',
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activeTab]}>
-              <IconSymbol size={28} name="gearshape.fill" color={color} />
+              <IconSymbol size={40} name="gearshape.fill" color={color} />
             </View>
           ),
         }}
