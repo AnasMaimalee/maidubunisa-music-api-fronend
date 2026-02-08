@@ -75,11 +75,13 @@ export default function PlaylistScreen() {
   const [playlists, setPlaylists] = useState<{ name: string; songs: Song[] }[]>([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState<{ name: string; songs: Song[] } | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalMode, setModalMode] = useState<'newPlaylist' | 'playlistDetails' | 'addSongs' | null>(null);
+  const [modalMode, setModalMode] = useState<'newPlaylist' | 'playlistDetails' | 'addSongs' | 'playlistOptions' | 'renamePlaylist' | null>(null);
 
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [allSongs, setAllSongs] = useState<Song[]>([]);
   const [selectedSongs, setSelectedSongs] = useState<Set<string>>(new Set());
+  const [playlistToEdit, setPlaylistToEdit] = useState<{ name: string; songs: Song[] } | null>(null);
+  const [renameText, setRenameText] = useState('');
 
   const PLAYLISTS_KEY = '@app_playlists';
 
@@ -118,6 +120,7 @@ export default function PlaylistScreen() {
     loadAllSongs();
   }, []);
 
+  // Add new playlist
   const handleAddPlaylist = async () => {
     const name = newPlaylistName.trim();
     if (!name) return;
@@ -134,6 +137,7 @@ export default function PlaylistScreen() {
     setNewPlaylistName('');
   };
 
+  // Open playlist modal
   const openPlaylistModal = (playlist: { name: string; songs: Song[] }) => {
     setSelectedPlaylist(playlist);
     setSelectedSongs(new Set());
@@ -141,6 +145,7 @@ export default function PlaylistScreen() {
     setModalVisible(true);
   };
 
+  // Toggle song selection
   const toggleSongSelection = (songId: string) => {
     const newSet = new Set(selectedSongs);
     if (newSet.has(songId)) newSet.delete(songId);
@@ -148,6 +153,7 @@ export default function PlaylistScreen() {
     setSelectedSongs(newSet);
   };
 
+  // Add selected songs
   const handleAddSelectedSongs = async () => {
     if (!selectedPlaylist) return;
     const data = await AsyncStorage.getItem(PLAYLISTS_KEY);
@@ -166,6 +172,7 @@ export default function PlaylistScreen() {
     setModalMode('playlistDetails'); // back to playlist view
   };
 
+  // Remove song from playlist
   const removeSongFromPlaylist = async (songId: string) => {
     if (!selectedPlaylist) return;
     const data = await AsyncStorage.getItem(PLAYLISTS_KEY);
@@ -174,6 +181,52 @@ export default function PlaylistScreen() {
     stored[selectedPlaylist.name] = updated;
     await savePlaylists(stored);
     setSelectedPlaylist({ ...selectedPlaylist, songs: updated });
+  };
+
+  // Playlist Options (three-dot menu)
+  const openPlaylistOptions = (playlist: { name: string; songs: Song[] }) => {
+    setPlaylistToEdit(playlist);
+    setModalMode('playlistOptions');
+    setModalVisible(true);
+  };
+
+  const handleDeletePlaylist = async () => {
+    if (!playlistToEdit) return;
+    const data = await AsyncStorage.getItem(PLAYLISTS_KEY);
+    const stored: { [name: string]: Song[] } = data ? JSON.parse(data) : {};
+    delete stored[playlistToEdit.name];
+    await savePlaylists(stored);
+    setModalVisible(false);
+    setModalMode(null);
+  };
+
+  const handleRenamePlaylist = () => {
+    if (!playlistToEdit) return;
+    setRenameText(playlistToEdit.name);
+    setModalMode('renamePlaylist');
+  };
+
+  const confirmRenamePlaylist = async () => {
+    if (!playlistToEdit) return;
+    const newName = renameText.trim();
+    if (!newName) return;
+
+    const data = await AsyncStorage.getItem(PLAYLISTS_KEY);
+    const stored: { [name: string]: Song[] } = data ? JSON.parse(data) : {};
+
+    // Prevent duplicate name
+    if (newName !== playlistToEdit.name && stored[newName]) {
+      alert('A playlist with this name already exists!');
+      return;
+    }
+
+    stored[newName] = stored[playlistToEdit.name];
+    if (newName !== playlistToEdit.name) delete stored[playlistToEdit.name];
+    await savePlaylists(stored);
+
+    setModalVisible(false);
+    setModalMode(null);
+    setPlaylistToEdit(null);
   };
 
   return (
@@ -204,32 +257,35 @@ export default function PlaylistScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
+          <View style={styles.playlistRow}>
             <TouchableOpacity
-            style={[styles.playlistRow, selectedPlaylist?.name === item.name && { borderColor: PRIMARY }]}
-            onPress={() => openPlaylistModal(item)}
+              style={[styles.playlistCardContent, selectedPlaylist?.name === item.name && { borderColor: PRIMARY }]}
+              onPress={() => openPlaylistModal(item)}
             >
-            <View style={styles.playlistIconRow}>
+              <View style={styles.playlistIconRow}>
                 <IconSymbol name="music.note.list" size={36} color={PRIMARY} />
-            </View>
-            <View style={styles.playlistInfo}>
+              </View>
+              <View style={styles.playlistInfo}>
                 <Text style={styles.playlistName}>{item.name}</Text>
                 <Text style={styles.playlistCount}>
-                {item.songs.length} {item.songs.length === 1 ? 'song' : 'songs'}
+                  {item.songs.length} {item.songs.length === 1 ? 'song' : 'songs'}
                 </Text>
-            </View>
+              </View>
+
+              {/* Three-dot menu */}
+              <TouchableOpacity style={styles.threeDotButton} onPress={() => openPlaylistOptions(item)}>
+                <MaterialIcons name="more-vert" size={24} color={TEXT} />
+              </TouchableOpacity>
             </TouchableOpacity>
+          </View>
         )}
-        />
+      />
 
-
-      {/* SINGLE MODAL FOR ALL PURPOSES */}
-      <Modal
-        transparent
-        animationType="fade"
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      {/* MODALS */}
+      <Modal transparent animationType="fade" visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
+
+          {/* New Playlist */}
           {modalMode === 'newPlaylist' && (
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>New Playlist</Text>
@@ -252,6 +308,45 @@ export default function PlaylistScreen() {
             </View>
           )}
 
+          {/* Playlist Options */}
+          {modalMode === 'playlistOptions' && playlistToEdit && (
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{playlistToEdit.name}</Text>
+              <TouchableOpacity style={styles.modalOption} onPress={handleRenamePlaylist}>
+                <Text style={{ color: PRIMARY, fontWeight: '600' }}>Rename</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalOption} onPress={handleDeletePlaylist}>
+                <Text style={{ color: 'red', fontWeight: '600' }}>Delete</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalOption} onPress={() => setModalVisible(false)}>
+                <Text style={{ color: '#555' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Rename Playlist */}
+          {modalMode === 'renamePlaylist' && playlistToEdit && (
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Rename Playlist</Text>
+              <TextInput
+                style={[styles.input, { borderColor: PRIMARY, color: TEXT }]}
+                placeholder="Enter new name"
+                placeholderTextColor="#999"
+                value={renameText}
+                onChangeText={setRenameText}
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 }}>
+                <TouchableOpacity onPress={() => setModalVisible(false)} style={{ marginRight: 16 }}>
+                  <Text style={{ color: '#555' }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={confirmRenamePlaylist}>
+                  <Text style={{ color: PRIMARY, fontWeight: 'bold' }}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Playlist Details */}
           {modalMode === 'playlistDetails' && selectedPlaylist && (
             <View style={styles.modalContentLarge}>
               <View style={styles.modalHeader}>
@@ -264,7 +359,6 @@ export default function PlaylistScreen() {
                   <Text style={{ color: '#fff', fontWeight: '600', marginLeft: 6 }}>Add Songs</Text>
                 </TouchableOpacity>
               </View>
-
               <FlatList
                 data={selectedPlaylist.songs}
                 keyExtractor={(item) => item.id}
@@ -281,7 +375,6 @@ export default function PlaylistScreen() {
                 )}
                 style={{ marginTop: 12 }}
               />
-
               <TouchableOpacity
                 style={styles.closeModalButton}
                 onPress={() => setModalVisible(false)}
@@ -291,6 +384,7 @@ export default function PlaylistScreen() {
             </View>
           )}
 
+          {/* Add Songs */}
           {modalMode === 'addSongs' && selectedPlaylist && (
             <View style={styles.modalContentLarge}>
               <Text style={styles.modalTitle}>Add Songs</Text>
@@ -322,31 +416,35 @@ export default function PlaylistScreen() {
 }
 
 const styles = StyleSheet.create({
-    playlistRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: CARD,
-  padding: 12,
-  marginBottom: 12,
-  borderRadius: 12,
-  borderWidth: 2,
-  borderColor: 'transparent',
-},
-playlistIconRow: {
-  width: 48,
-  height: 48,
-  borderRadius: 12,
-  backgroundColor: ICON_BG,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 12,
-},
-playlistInfo: {
-  flex: 1,
-},
-playlistName: { fontWeight: '600', color: TEXT, fontSize: 16 },
-playlistCount: { fontSize: 12, color: '#555', marginTop: 2 },
-
+  playlistRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  playlistCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: CARD,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    flex: 1,
+  },
+  playlistIconRow: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: ICON_BG,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  playlistInfo: {
+    flex: 1,
+  },
+  playlistName: { fontWeight: '600', color: TEXT, fontSize: 16 },
+  playlistCount: { fontSize: 12, color: '#555', marginTop: 2 },
   header: { backgroundColor: PRIMARY, height: 80, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   addPlaylistContainer: { paddingHorizontal: 16, paddingVertical: 12 },
@@ -360,18 +458,6 @@ playlistCount: { fontSize: 12, color: '#555', marginTop: 2 },
     gap: 8,
   },
   addPlaylistText: { color: TEXT, fontWeight: '600' },
-  playlistCard: {
-    width: 100,
-    height: 100,
-    backgroundColor: CARD,
-    marginRight: 12,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  playlistIcon: { width: 40, height: 40, borderRadius: 8, backgroundColor: ICON_BG, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
   modalOverlay: { flex: 1, backgroundColor: '#00000066', justifyContent: 'center', alignItems: 'center' },
   modalContent: { width: '80%', backgroundColor: BG, borderRadius: 16, padding: 16 },
   modalContentLarge: { width: '90%', maxHeight: '80%', backgroundColor: BG, borderRadius: 16, padding: 16 },
@@ -383,4 +469,6 @@ playlistCount: { fontSize: 12, color: '#555', marginTop: 2 },
   addSongCircle: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
   removeButton: { marginLeft: 12, padding: 6, borderRadius: 6 },
   input: { borderWidth: 1, borderRadius: 12, paddingVertical: 8, paddingHorizontal: 12 },
+  threeDotButton: { marginLeft: 12, padding: 6 },
+  modalOption: { paddingVertical: 12 },
 });
