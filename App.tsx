@@ -8,6 +8,7 @@ import PlayerScreen from './src/screens/PlayerScreen';
 
 import { TrackPlayerProvider } from './src/context/TrackPlayerContext';
 import { ThemeProvider } from './src/context/ThemeContext';
+import { FavoritesProvider } from './src/context/FavoritesContext'; // ✅ Import FavoritesProvider
 
 export type RootStackParamList = {
   Home: undefined;
@@ -20,21 +21,23 @@ export default function App() {
   return (
     <ThemeProvider>
       <TrackPlayerProvider>
-        <NavigationContainer>
-          <StatusBar style="auto" />
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen
-              name="Home"
-              component={MainScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Player"
-              component={PlayerScreen}
-              options={{ title: 'Now Playing' }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <FavoritesProvider> {/* ✅ Wrap the app with FavoritesProvider */}
+          <NavigationContainer>
+            <StatusBar style="auto" />
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen
+                name="Home"
+                component={MainScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Player"
+                component={PlayerScreen}
+                options={{ title: 'Now Playing' }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </FavoritesProvider>
       </TrackPlayerProvider>
     </ThemeProvider>
   );

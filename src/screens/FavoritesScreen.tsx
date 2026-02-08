@@ -1,56 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { FlatList, StyleSheet, View, Text } from 'react-native';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import SongCard, { Song } from '@/src/components/SongCard';
-import FavoriteButton from '@/components/FavoriteButton';
+import FavoriteButton from '../components/FavoriteButton';
 import useTrackPlayer from '@/src/hooks/useTrackPlayer';
-import FavoriteService from '@/src/services/FavoriteService';
+import { FavoritesContext } from '@/src/context/FavoritesContext';
 
 export default function FavoritesScreen() {
   const { playSong } = useTrackPlayer();
-  const [favorites, setFavorites] = useState<Song[]>([]);
+  const { favorites, removeFavorite } = useContext(FavoritesContext);
 
   const PRIMARY = '#1DB954';
   const BG_LIGHT = '#fff';
 
-  // Load favorites
-  const loadFavorites = async () => {
-    const favs = await FavoriteService.getFavorites();
-    // ✅ filter out null/undefined items
-    setFavorites(favs.filter((item): item is Song => !!item && !!item.id));
-  };
-
-  useEffect(() => {
-    loadFavorites();
-  }, []);
-
-  const handleToggleFavorite = async (songId: string) => {
-    await FavoriteService.toggleFavorite(songId);
-    loadFavorites();
+  const handleToggleFavorite = (songId: string) => {
+    removeFavorite(songId);
   };
 
   return (
     <ParallaxScrollView
       style={{ backgroundColor: BG_LIGHT }}
       contentContainerStyle={{ padding: 16 }}
-      headerBackgroundColor={PRIMARY + '33'}
-      headerImage={
-        <View style={{ position: 'absolute', bottom: -90, left: -35 }} />
-      }
+      headerBackgroundColor={PRIMARY}
+      // Removed large heart icon
+      headerImage={<View />}
+      headerHeight={80}
     >
-      <FlatList
-        data={favorites.filter((item) => !!item && !!item.id)} // ✅ filter again
-        keyExtractor={(item, index) => item?.id || String(index)} // ✅ fallback key
-        renderItem={({ item: song }) => (
-          <SongCard song={song} onPress={() => playSong(song)}>
-            <FavoriteButton
-              songId={song.id}
-              onToggle={() => handleToggleFavorite(song.id)}
+      {favorites.length === 0 ? (
+        <View style={{ alignItems: 'center', marginTop: 50 }}>
+          <Text style={{ color: '#555' }}>No favorite songs yet.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={favorites.filter((item) => !!item && !!item.id)}
+          keyExtractor={(item, index) => item?.id || String(index)}
+          renderItem={({ item: song }) => (
+            <SongCard
+              song={song}
+              onPress={() => playSong(song)}
+              rightAction={
+                <FavoriteButton
+                  songId={song.id}
+                  onToggle={() => handleToggleFavorite(song.id)}
+                  theme={{ primary: PRIMARY, text: '#333', card: '#f9f9f9' }}
+                />
+              }
             />
-          </SongCard>
-        )}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      />
+          )}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        />
+      )}
     </ParallaxScrollView>
   );
 }

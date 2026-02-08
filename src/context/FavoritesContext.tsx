@@ -1,33 +1,22 @@
 // File: src/context/FavoritesContext.tsx
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Song } from '@/src/components/SongCard';
 
-// Define Song type
-export interface Song {
-  id: string;
-  title: string;
-  artist: string;
-  albumId?: string;
-  duration?: number;
-}
-
-// Define the context type
 interface FavoritesContextType {
   favorites: Song[];
-  addFavorite: (song: Song) => Promise<void>;
-  removeFavorite: (songId: string) => Promise<void>;
+  addFavorite: (song: Song) => void;
+  removeFavorite: (songId: string) => void;
   isFavorite: (songId: string) => boolean;
 }
 
-// Provide default values for context
 export const FavoritesContext = createContext<FavoritesContextType>({
   favorites: [],
-  addFavorite: async () => {},
-  removeFavorite: async () => {},
+  addFavorite: () => {},
+  removeFavorite: () => {},
   isFavorite: () => false,
 });
 
-// Provider props
 interface FavoritesProviderProps {
   children: ReactNode;
 }
@@ -35,32 +24,31 @@ interface FavoritesProviderProps {
 export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
   const [favorites, setFavorites] = useState<Song[]>([]);
 
-  // Load favorites from AsyncStorage on mount
+  // Load favorites on mount
   useEffect(() => {
-    const loadFavorites = async () => {
-      try {
-        const saved = await AsyncStorage.getItem('favorites');
-        if (saved) setFavorites(JSON.parse(saved));
-      } catch (error) {
-        console.log('Failed to load favorites:', error);
-      }
+    const load = async () => {
+      const stored = await AsyncStorage.getItem('favorites');
+      if (stored) setFavorites(JSON.parse(stored));
     };
-    loadFavorites();
+    load();
   }, []);
 
-  const addFavorite = async (song: Song) => {
-    const updated = [...favorites, song];
-    setFavorites(updated);
-    await AsyncStorage.setItem('favorites', JSON.stringify(updated));
+  const saveFavorites = async (newFavs: Song[]) => {
+    setFavorites(newFavs);
+    await AsyncStorage.setItem('favorites', JSON.stringify(newFavs));
   };
 
-  const removeFavorite = async (songId: string) => {
-    const updated = favorites.filter(s => s.id !== songId);
-    setFavorites(updated);
-    await AsyncStorage.setItem('favorites', JSON.stringify(updated));
+  const addFavorite = (song: Song) => {
+    if (!favorites.some(f => f.id === song.id)) {
+      saveFavorites([...favorites, song]);
+    }
   };
 
-  const isFavorite = (songId: string) => favorites.some(s => s.id === songId);
+  const removeFavorite = (songId: string) => {
+    saveFavorites(favorites.filter(f => f.id !== songId));
+  };
+
+  const isFavorite = (songId: string) => favorites.some(f => f.id === songId);
 
   return (
     <FavoritesContext.Provider value={{ favorites, addFavorite, removeFavorite, isFavorite }}>

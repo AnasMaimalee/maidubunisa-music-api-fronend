@@ -5,14 +5,15 @@ import FavoriteService from '../services/FavoriteService';
 
 interface FavoriteButtonProps {
   songId: string;
-  onToggle?: () => void; // ✅ callback when toggled
+  theme?: { primary: string; text: string; accent: string; card: string };
+  onToggle?: () => void; // called after toggle
 }
 
 const FavoriteButton: React.FC<FavoriteButtonProps> = ({ songId, onToggle }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  // ✅ Load initial favorite state
+  // Load initial favorite status
   useEffect(() => {
     const checkFavorite = async () => {
       const fav = await FavoriteService.isFavorite(songId);
@@ -21,7 +22,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ songId, onToggle }) => 
     checkFavorite();
   }, [songId]);
 
-  // ✅ Animation on favorite
+  // Animation when favorited
   const animate = () => {
     Animated.sequence([
       Animated.spring(scaleAnim, { toValue: 1.3, useNativeDriver: true }),
@@ -29,20 +30,23 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ songId, onToggle }) => 
     ]).start();
   };
 
-  // ✅ Toggle favorite
   const toggleFavorite = async () => {
-    const newStatus = await FavoriteService.toggleFavorite(songId);
-    setIsFavorite(newStatus);
-    if (newStatus) animate();
+    try {
+      const newStatus = await FavoriteService.toggleFavorite(songId);
+      setIsFavorite(newStatus);
 
-    if (onToggle) onToggle(); // refresh parent immediately
+      if (newStatus) animate(); // animate only when added
+
+      if (onToggle) onToggle(); // refresh parent immediately
+    } catch (e) {
+      console.error('Failed to toggle favorite:', e);
+    }
   };
 
-  // ✅ Hardcoded light mode colors
-  const ACTIVE_COLOR = '#1DB954'; // green accent
-  const INACTIVE_COLOR = '#333'; // text
-  const ACTIVE_BG = '#1DB95433'; // light transparent green
-  const INACTIVE_BG = '#fff'; // card background
+  const ACTIVE_COLOR = '#1DB954';
+  const INACTIVE_COLOR = '#333';
+  const ACTIVE_BG = '#1DB95433';
+  const INACTIVE_BG = '#fff';
 
   return (
     <TouchableOpacity
@@ -50,9 +54,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({ songId, onToggle }) => 
       onPress={toggleFavorite}
       style={[
         styles.container,
-        {
-          backgroundColor: isFavorite ? ACTIVE_BG : INACTIVE_BG,
-        },
+        { backgroundColor: isFavorite ? ACTIVE_BG : INACTIVE_BG },
       ]}
     >
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -74,12 +76,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
-
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-
     elevation: Platform.OS === 'android' ? 3 : 0,
   },
 });
