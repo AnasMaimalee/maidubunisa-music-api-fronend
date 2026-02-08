@@ -1,45 +1,44 @@
-// App.tsx - 100% PHONE AUDIO FIXED
+// App.tsx - GLOBAL PLAYER ON ALL SCREENS
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import * as Audio from 'expo-av'; // 🔥 REQUIRED FOR PHONE SOUND
+import * as Audio from 'expo-av';
 
 import MainScreen from './src/screens/MainScreen';
 import PlayerScreen from './src/screens/PlayerScreen';
 import SettingsScreen from './app/(tabs)/settings';
+import GlobalPlayer from './src/components/GlobalPlayer'; // 🔥 NEW
 
 import { TrackPlayerProvider } from './src/context/TrackPlayerContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 
 export type RootStackParamList = {
   Home: undefined;
-  Player: { song: any }; // ✅ Full song object
+  Player: { song: any };
   Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// 🔥 WRAPPER - Adds GlobalPlayer to every screen
+function ScreenWithPlayer({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {children}
+      <GlobalPlayer />
+    </>
+  );
+}
+
 export default function App() {
-  // 🔥 PHONE AUDIO SESSION - RUNS FIRST
   useEffect(() => {
-    const initAudio = async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,        // 🔥 BYPASS SILENT MODE
-          staysActiveInBackground: true,     // Background playback
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-          playThroughEarpieceAndroid: false, // Speaker NOT earpiece
-          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-          shouldDuckAndroid: false,
-        });
-        console.log('🔊 ✅ PHONE AUDIO SESSION ACTIVE');
-      } catch (e) {
-        console.error('❌ Audio init failed:', e);
-      }
-    };
-    initAudio();
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: true,
+      playThroughEarpieceAndroid: false,
+    }).catch(console.error);
   }, []);
 
   return (
@@ -48,13 +47,33 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="light" />
           <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={MainScreen} options={{ headerShown: false }} />
+            <Stack.Screen 
+              name="Home" 
+              component={(props) => (
+                <ScreenWithPlayer>
+                  <MainScreen {...props} />
+                </ScreenWithPlayer>
+              )} 
+              options={{ headerShown: false }} 
+            />
             <Stack.Screen 
               name="Player" 
-              component={PlayerScreen} 
-              options={{ headerShown: false }}
+              component={(props) => (
+                <ScreenWithPlayer>
+                  <PlayerScreen {...props} />
+                </ScreenWithPlayer>
+              )} 
+              options={{ headerShown: false }} 
             />
-            <Stack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }} />
+            <Stack.Screen 
+              name="Settings" 
+              component={(props) => (
+                <ScreenWithPlayer>
+                  <SettingsScreen {...props} />
+                </ScreenWithPlayer>
+              )} 
+              options={{ headerShown: false }} 
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </TrackPlayerProvider>
