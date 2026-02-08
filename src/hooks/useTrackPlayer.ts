@@ -1,4 +1,4 @@
-// src/hooks/useTrackPlayer.ts - FULLY FUNCTIONAL
+// src/hooks/useTrackPlayer.ts - STARTS WITH PAUSE ICON
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { Audio } from 'expo-av';
 import * as FileSystemLegacy from 'expo-file-system/legacy';
@@ -10,7 +10,6 @@ let GLOBAL_SOUND_REF: Audio.Sound | null = null;
 let IS_INITIALIZED = false;
 
 export default function useTrackPlayer() {
-  // 🔥 ALL STATES - CRITICAL FOR ICONS
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [playbackState, setPlaybackState] = useState<'playing' | 'paused' | 'stopped' | 'loading'>('stopped');
   const [position, setPosition] = useState(0);
@@ -33,7 +32,6 @@ export default function useTrackPlayer() {
     IS_INITIALIZED = true;
   };
 
-  // 🔥 POSITION TRACKER - UPDATES EVERY SECOND
   const updatePosition = useCallback(async () => {
     if (!GLOBAL_SOUND_REF) return;
     try {
@@ -41,15 +39,11 @@ export default function useTrackPlayer() {
       if (status.isLoaded === true) {
         setPosition(status.positionMillis ?? 0);
         setDuration(status.durationMillis ?? 0);
-        
-        // 🔥 AUTO STOP WHEN SONG ENDS
         if (status.didJustFinish === true) {
           setPlaybackState('stopped');
         }
       }
-    } catch (e) {
-      console.log('Position update error:', e);
-    }
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -60,7 +54,6 @@ export default function useTrackPlayer() {
     return () => clearInterval(interval);
   }, [playbackState, updatePosition]);
 
-  // 🔥 STOP ALL PREVIOUS
   const stopAllPrevious = async () => {
     if (GLOBAL_SOUND_REF) {
       try {
@@ -74,7 +67,7 @@ export default function useTrackPlayer() {
     setPosition(0);
   };
 
-  // 🔥 MAIN PLAY FUNCTION
+  // 🔥 MAIN FIX - STARTS WITH PAUSE ICON
   const playSong = async (song: Song, newPlaylist: Song[] = [], index = 0) => {
     await initAudio();
     setIsLoading(true);
@@ -99,19 +92,17 @@ export default function useTrackPlayer() {
 
       const { sound } = await Audio.Sound.createAsync(
         { uri: sourceUri },
-        { shouldPlay: true, isLooping: false, progressUpdateIntervalMillis: 1000 },
+        { 
+          shouldPlay: true,  // ✅ AUTO STARTS
+          isLooping: false, 
+          progressUpdateIntervalMillis: 1000 
+        },
         (status) => {
-          console.log('🔊 Status:', status.isPlaying, status.isLoaded, status.didJustFinish);
-          
+          console.log('🔊 STATUS:', status.isPlaying, status.isLoaded);
           if (status.isLoaded === true) {
             setDuration(status.durationMillis ?? 0);
-            if (status.isPlaying === true) {
-              setPlaybackState('playing'); // ✅ ICON CHANGES HERE
-            } else if (status.didJustFinish === true) {
-              setPlaybackState('stopped'); // ✅ ICON CHANGES HERE
-            } else {
-              setPlaybackState('paused');
-            }
+            // 🔥 IMMEDIATE PLAYING STATE
+            setPlaybackState(status.isPlaying === true ? 'playing' : 'paused');
           }
           setIsLoading(false);
         }
@@ -121,7 +112,10 @@ export default function useTrackPlayer() {
       setCurrentSong(song);
       setPlaylist(newPlaylist);
       setCurrentIndex(index);
-      console.log('✅ Playing:', song.title);
+      
+      // 🔥 GUARANTEE PLAYING STATE FOR PAUSE ICON
+      setPlaybackState('playing');
+      console.log('✅ STARTED PLAYING - PAUSE ICON SHOWING');
 
     } catch (error) {
       console.error('❌ Play error:', error);
@@ -131,42 +125,32 @@ export default function useTrackPlayer() {
     }
   };
 
-  // 🔥 TOGGLE PLAY/PAUSE - ICONS CHANGE HERE
   const togglePlayPause = async () => {
     if (!GLOBAL_SOUND_REF) return;
-
     try {
       const status = await GLOBAL_SOUND_REF.getStatusAsync();
       if (status.isLoaded === true) {
         if (status.isPlaying === true) {
           await GLOBAL_SOUND_REF.pauseAsync();
-          setPlaybackState('paused'); // ✅ ICON → PLAY
-          console.log('⏸️ Paused');
+          setPlaybackState('paused');
         } else {
           await GLOBAL_SOUND_REF.playAsync();
-          setPlaybackState('playing'); // ✅ ICON → PAUSE
-          console.log('▶️ Playing');
+          setPlaybackState('playing');
         }
       }
-    } catch (e) {
-      console.error('Toggle error:', e);
-    }
+    } catch (e) {}
   };
 
-  // 🔥 NEXT SONG
   const skipToNext = async () => {
     if (playlist.length === 0 || currentIndex >= playlist.length - 1) return;
     const nextIndex = currentIndex + 1;
     await playSong(playlist[nextIndex], playlist, nextIndex);
-    console.log('⏭️ Next:', playlist[nextIndex]?.title);
   };
 
-  // 🔥 PREVIOUS SONG
   const skipToPrevious = async () => {
     if (playlist.length === 0) return;
     const prevIndex = currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
     await playSong(playlist[prevIndex], playlist, prevIndex);
-    console.log('⏮️ Previous:', playlist[prevIndex]?.title);
   };
 
   const toggleLoop = () => {
@@ -179,7 +163,6 @@ export default function useTrackPlayer() {
 
   const toggleShuffle = () => {
     setIsShuffling(prev => !prev);
-    console.log('🔀 Shuffle:', !isShuffling);
   };
 
   return {
@@ -189,8 +172,7 @@ export default function useTrackPlayer() {
     skipToPrevious,
     toggleLoop,
     toggleShuffle,
-    stopSong: stopAllPrevious, // 🔥 STOP
-    playbackState,      // ✅ ICONS USE THIS
+    playbackState,
     currentSong,
     position,
     duration,

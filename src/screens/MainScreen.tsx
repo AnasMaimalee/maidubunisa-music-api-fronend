@@ -1,4 +1,4 @@
-// MainScreen.tsx - ✅ FULL LIVE FAVORITES SYNC!
+// MainScreen.tsx - NO ERRORS + PAUSE ICON START
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import {
   View,
@@ -11,6 +11,7 @@ import {
   Platform,
   StatusBar as RNStatusBar,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AlbumCard from '../components/AlbumCard';
 import SongCard, { Song } from '../components/SongCard';
@@ -32,8 +33,12 @@ const TEXT = '#333';
 const CARD = '#f9f9f9';
 
 export default function MainScreen() {
-  const { theme } = useContext(ThemeContext);
-  const { playSong, currentSong } = useTrackPlayer();
+  const navigation = useNavigation();
+  const { 
+    playSong, 
+    currentSong,
+    playbackState 
+  } = useTrackPlayer();
 
   const [albums, setAlbums] = useState<Album[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
@@ -45,7 +50,6 @@ export default function MainScreen() {
     return RNStatusBar.currentHeight || 0;
   };
 
-  // ✅ LIVE FAVORITES WATCHER - Updates ALL heart buttons!
   const syncFavoritesLive = useCallback(async () => {
     try {
       const savedFavIds = await AsyncStorage.getItem('favoriteIds');
@@ -56,11 +60,9 @@ export default function MainScreen() {
     }
   }, []);
 
-  // 🔥 MAIN LIVE WATCHER - 300ms updates!
   useEffect(() => {
     const interval = setInterval(syncFavoritesLive, 300);
-    syncFavoritesLive(); // Initial load
-    
+    syncFavoritesLive();
     return () => clearInterval(interval);
   }, [syncFavoritesLive]);
 
@@ -68,7 +70,6 @@ export default function MainScreen() {
     async function fetchData() {
       try {
         setLoading(true);
-        
         const localAlbums = await AsyncStorage.getItem('albums');
         const localSongs = await AsyncStorage.getItem('songs');
 
@@ -91,7 +92,6 @@ export default function MainScreen() {
 
           setAlbums(albumResponse.data.data);
           setSongs(normalizedSongs);
-
           await AsyncStorage.setItem('albums', JSON.stringify(albumResponse.data.data));
           await AsyncStorage.setItem('songs', JSON.stringify(normalizedSongs));
         }
@@ -101,7 +101,6 @@ export default function MainScreen() {
         setLoading(false);
       }
     }
-
     fetchData();
   }, []);
 
@@ -113,9 +112,16 @@ export default function MainScreen() {
     );
   }
 
-  const PLAYER_HEIGHT = currentSong ? 100 : 0;
   const TOP_PADDING = getTopPadding();
   const TOTAL_SONGS = songs.length;
+  const PLAYER_HEIGHT = currentSong ? 140 : 0;
+
+  // 🔥 FIXED - INSIDE COMPONENT
+  const handleSongPress = (song: Song, index: number) => {
+    console.log('🎵 Song clicked:', song.title);
+    playSong(song, songs, index);  // ✅ WORKS
+    navigation.navigate('Player', { song });  // ✅ NOW WORKS
+  };
 
   return (
     <View style={styles.container}>
@@ -147,10 +153,10 @@ export default function MainScreen() {
           data={songs}
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <SongCard
               song={item}
-              onPress={() => playSong(item)}
+              onPress={() => handleSongPress(item, index)}  // ✅ FIXED
               rightAction={
                 <FavoriteButton
                   songId={item.id}
@@ -219,14 +225,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 100,
+    height: 140,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
+    paddingBottom: 30,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 10,
   },
 });

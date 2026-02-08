@@ -1,4 +1,4 @@
-// src/components/PlayerControls.tsx - YOUR EXACT DESIGN + ICONS ONLY
+// src/components/PlayerControls.tsx - YOUR DESIGN + WORKING ICONS
 import React, { useRef } from 'react';
 import {
   View,
@@ -49,7 +49,6 @@ const PlayerControls: React.FC = () => {
   return (
     <View style={styles.wrapper}>
       <View style={[styles.container, { backgroundColor: themeColors.card }]}>
-        {/* SHUFFLE */}
         <TouchableOpacity onPress={toggleShuffle} style={styles.iconButton}>
           <Icon
             name="shuffle"
@@ -58,31 +57,23 @@ const PlayerControls: React.FC = () => {
           />
         </TouchableOpacity>
 
-        {/* PREVIOUS */}
         <TouchableOpacity onPress={skipToPrevious} style={styles.iconButton}>
           <Icon name="skip-previous" size={34} color={themeColors.text} />
         </TouchableOpacity>
 
-        {/* PLAY/PAUSE - ✅ YOUR ICON LOGIC */}
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <TouchableOpacity
             onPress={handlePressPlay}
             style={[styles.playButton, { backgroundColor: themeColors.primary }]}
           >
-            <Icon 
-              name={isPlaying ? 'pause' : 'play-arrow'} 
-              size={36} 
-              color="#fff" 
-            />
+            <Icon name={isPlaying ? 'pause' : 'play-arrow'} size={36} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
 
-        {/* NEXT */}
         <TouchableOpacity onPress={skipToNext} style={styles.iconButton}>
           <Icon name="skip-next" size={34} color={themeColors.text} />
         </TouchableOpacity>
 
-        {/* REPEAT */}
         <TouchableOpacity onPress={toggleLoop} style={styles.iconButton}>
           <Icon
             name="repeat"
@@ -102,7 +93,6 @@ const PlayerControls: React.FC = () => {
 
 export default PlayerControls;
 
-// ✅ YOUR EXACT STYLES - NO CHANGES
 const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 10,

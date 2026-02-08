@@ -1,18 +1,19 @@
-// src/components/GlobalPlayer.tsx - APPEARS ON ALL SCREENS
+// src/components/GlobalPlayer.tsx
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import PlayerControls from './PlayerControls';
 import useTrackPlayer from '../hooks/useTrackPlayer';
 
 export default function GlobalPlayer() {
   const { currentSong } = useTrackPlayer();
-
-  // Only show when song playing
   if (!currentSong) return null;
 
   return (
     <View style={styles.container}>
       <PlayerControls />
+      <Text style={styles.songTitle} numberOfLines={1}>
+        {currentSong.title}
+      </Text>
     </View>
   );
 }
@@ -25,15 +26,11 @@ const styles = StyleSheet.create({
     right: 0,
     height: 140,
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    paddingBottom: 30,
-    paddingTop: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 10,
-    zIndex: 1000, // Always on top
+    zIndex: 9999,
+  },
+  songTitle: {
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#333',
   },
 });

@@ -1,10 +1,11 @@
-// src/screens/PlayerScreen.tsx - COMPLETE NO OVERLAP
+// src/screens/PlayerScreen.tsx - FULL PLAYER + SEEKING
 import React, { useEffect } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   StyleSheet,
+  Slider,
 } from 'react-native';
 import PlayerControls from '../components/PlayerControls';
 import useTrackPlayer from '../hooks/useTrackPlayer';
@@ -19,7 +20,8 @@ export default function PlayerScreen({ route }: Props) {
     currentSong,
     position,
     duration,
-    isLoading,
+    seekTo,
+    togglePlayPause,
   } = useTrackPlayer();
 
   useEffect(() => {
@@ -28,53 +30,46 @@ export default function PlayerScreen({ route }: Props) {
     }
   }, []);
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.center}>
-        <Text style={styles.loadingText}>Loading song...</Text>
-      </SafeAreaView>
-    );
-  }
+  const formatTime = (ms: number) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 🎼 TOP CONTENT - FLEXIBLE */}
-      <View style={styles.topContent}>
-        <View style={styles.artworkContainer}>
-          <View style={styles.artwork}>
-            <Text style={styles.artworkText}>
-              {currentSong?.title?.[0]?.toUpperCase() || '🎵'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.songInfo}>
-          <Text style={styles.title} numberOfLines={1}>
-            {currentSong?.title || song.title || 'Unknown Song'}
-          </Text>
-          <Text style={styles.artist}>Artist Name</Text>
-        </View>
-
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>
-            {Math.floor(position / 60000)}:
-            {Math.floor((position % 60000) / 1000).toString().padStart(2, '0')}
-          </Text>
-          <Text style={styles.timeText}>
-            {Math.floor(duration / 60000)}:
-            {Math.floor((duration % 60000) / 1000).toString().padStart(2, '0')}
-          </Text>
+      {/* 🎼 ARTWORK */}
+      <View style={styles.artworkContainer}>
+        <View style={styles.artwork}>
+          <Text style={styles.artworkText}>🎵</Text>
         </View>
       </View>
 
-      {/* 🎛️ BOTTOM CONTROLS - FIXED NO OVERLAP */}
-      <View style={styles.bottomControls}>
+      {/* 📝 SONG INFO */}
+      <View style={styles.infoContainer}>
+        <Text style={styles.title}>{currentSong?.title || song.title}</Text>
+        <Text style={styles.artist}>Artist Name</Text>
+      </View>
+
+      {/* ⏱️ SEEK BAR (TARIYA) */}
+      <View style={styles.progressContainer}>
+        <Text style={styles.timeText}>{formatTime(position)}</Text>
+        <Slider
+          style={styles.slider}
+          minimumValue={0}
+          maximumValue={duration}
+          value={position}
+          minimumTrackTintColor="#1DB954"
+          maximumTrackTintColor="#ccc"
+          thumbTintColor="#1DB954"
+          onSlidingComplete={(value) => seekTo(value)}  // 🔥 SEEKING!
+        />
+        <Text style={styles.timeText}>{formatTime(duration)}</Text>
+      </View>
+
+      {/* 🎛️ CONTROLS */}
+      <View style={styles.controlsContainer}>
         <PlayerControls />
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusText}>
-            {playbackState.charAt(0).toUpperCase() + playbackState.slice(1)}
-          </Text>
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -84,24 +79,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0f0f23',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#0f0f23',
-  },
-  loadingText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  topContent: {
-    flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 60,
   },
   artworkContainer: {
     flex: 1,
@@ -115,57 +92,42 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a2e',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4,
-    shadowRadius: 25,
-    elevation: 20,
   },
   artworkText: {
+    fontSize: 120,
     color: '#666',
-    fontSize: 100,
-    fontWeight: 'bold',
   },
-  songInfo: {
+  infoContainer: {
     paddingHorizontal: 40,
     alignItems: 'center',
+    paddingBottom: 20,
   },
   title: {
     color: '#fff',
     fontSize: 28,
     fontWeight: '800',
     textAlign: 'center',
-    marginBottom: 4,
   },
   artist: {
     color: '#aaa',
     fontSize: 16,
+    marginTop: 4,
   },
-  timeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 60,
+  progressContainer: {
+    paddingHorizontal: 40,
+    paddingBottom: 40,
+  },
+  slider: {
     width: '100%',
+    height: 40,
   },
   timeText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
-  // 🔥 NO OVERLAP - PERFECT BOTTOM
-  bottomControls: {
-    flexShrink: 0, // Don't compress
+  controlsContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 40, // Safe area for iPhone
-    paddingTop: 20,
-  },
-  statusContainer: {
-    alignItems: 'center',
-    paddingTop: 12,
-  },
-  statusText: {
-    color: '#888',
-    fontSize: 14,
-    fontWeight: '500',
+    paddingBottom: 60,
   },
 });
