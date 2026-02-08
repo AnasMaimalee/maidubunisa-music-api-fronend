@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,21 +6,20 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import FavoriteButton from './FavoriteButton';
-import { ThemeContext } from '../context/ThemeContext';
 import { Colors } from '../styles/global';
 
 export interface Song {
   id: string;
   title: string;
-  url: string;          // FULL URL REQUIRED
-  duration?: number;    // seconds
-  file_size?: number;   // bytes
+  url: string;
+  duration?: number;
+  file_size?: number;
 }
 
 interface SongCardProps {
   song: Song;
   onPress: (song: Song) => void;
+  rightAction?: React.ReactNode; // <-- New prop for remove button, etc.
 }
 
 const formatSize = (bytes?: number) => {
@@ -35,55 +34,42 @@ const formatDuration = (seconds?: number) => {
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-const SongCard: React.FC<SongCardProps> = ({ song, onPress }) => {
-  const { theme } = useContext(ThemeContext);
-  const themeColors = Colors[theme] ?? Colors.dark;
+const SongCard: React.FC<SongCardProps> = ({ song, onPress, rightAction }) => {
+  const themeColors = Colors; // LIGHT MODE
 
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => onPress(song)}
-      style={[
-        styles.container,
-        { backgroundColor: themeColors.card },
-      ]}
+      style={[styles.container, { backgroundColor: themeColors.card }]}
     >
       {/* ICON */}
-      <View
-        style={[
-          styles.iconWrap,
-          { backgroundColor: themeColors.primary },
-        ]}
-      >
+      <View style={[styles.iconWrap, { backgroundColor: themeColors.primary }]}>
         <MaterialIcons name="music-note" size={22} color="#fff" />
       </View>
 
       {/* TEXT */}
       <View style={styles.textWrapper}>
-        <Text
-          numberOfLines={1}
-          style={[styles.title, { color: themeColors.text }]}
-        >
+        <Text style={[styles.title, { color: themeColors.text }]} numberOfLines={1}>
           {song.title}
         </Text>
 
         <View style={styles.metaRow}>
-          {/* {song.duration && (
-            <Text style={[styles.meta, { color: themeColors.mutedText }]}>
-              {formatDuration(song.duration)}
-            </Text>
-          )} */}
-
           {song.file_size && (
-            <Text style={[styles.meta, { color: themeColors.mutedText }]}>
+            <Text style={[styles.meta, { color: themeColors.text + '99' }]}>
               {formatSize(song.file_size)}
+            </Text>
+          )}
+          {song.duration && (
+            <Text style={[styles.meta, { color: themeColors.text + '99', marginLeft: 8 }]}>
+              {formatDuration(song.duration)}
             </Text>
           )}
         </View>
       </View>
 
-      {/* FAVORITE */}
-      <FavoriteButton songId={song.id} theme={themeColors} />
+      {/* RIGHT ACTION (Remove/Cancel button) */}
+      {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
     </TouchableOpacity>
   );
 };
@@ -97,9 +83,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ffffff12',
+    borderBottomColor: '#00000012',
   },
-
   iconWrap: {
     width: 42,
     height: 42,
@@ -109,22 +94,9 @@ const styles = StyleSheet.create({
     marginRight: 14,
     elevation: 4,
   },
-
-  textWrapper: {
-    flex: 1,
-  },
-
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  metaRow: {
-    flexDirection: 'row',
-    marginTop: 4,
-  },
-
-  meta: {
-    fontSize: 12,
-  },
+  textWrapper: { flex: 1 },
+  title: { fontSize: 16, fontWeight: '600' },
+  metaRow: { flexDirection: 'row', marginTop: 4 },
+  meta: { fontSize: 12 },
+  rightAction: { marginLeft: 12 }, // spacing for the remove/cancel button
 });
