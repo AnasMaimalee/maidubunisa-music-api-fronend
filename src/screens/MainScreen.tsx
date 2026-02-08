@@ -17,6 +17,7 @@ import { ThemeContext } from '../context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useTrackPlayer from '../hooks/useTrackPlayer';
 import api from '../plugins/api';
+import FavoriteButton from '../components/FavoriteButton';
 
 interface Album {
   id: string;
@@ -24,6 +25,10 @@ interface Album {
   artist: string;
   coverUrl: string;
 }
+
+const PRIMARY = '#1DB954';
+const TEXT = '#333';
+const CARD = '#f9f9f9';
 
 export default function MainScreen({ navigation }: any) {
   const { theme } = useContext(ThemeContext);
@@ -124,9 +129,19 @@ export default function MainScreen({ navigation }: any) {
             keyExtractor={(item) => item.id}
             scrollEnabled={false}
             renderItem={({ item }) => (
-              <SongCard song={item} onPress={() => playSong(item)} />
+              <SongCard
+                song={item}
+                onPress={() => playSong(item)}
+                rightAction={
+                  <FavoriteButton
+                    songId={item.id}
+                    theme={{ primary: PRIMARY, text: TEXT, card: CARD }}
+                  />
+                }
+              />
             )}
           />
+
         </ScrollView>
       </SafeAreaView>
 

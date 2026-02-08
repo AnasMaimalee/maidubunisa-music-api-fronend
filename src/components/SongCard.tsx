@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import FavoriteButton from './FavoriteButton';
 import { Colors } from '../styles/global';
 
 export interface Song {
@@ -19,7 +20,8 @@ export interface Song {
 interface SongCardProps {
   song: Song;
   onPress: (song: Song) => void;
-  rightAction?: React.ReactNode; // <-- New prop for remove button, etc.
+  showFavorite?: boolean; // <-- new: show favorite button
+  rightAction?: React.ReactNode; // <-- optional custom right action
 }
 
 const formatSize = (bytes?: number) => {
@@ -34,7 +36,7 @@ const formatDuration = (seconds?: number) => {
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-const SongCard: React.FC<SongCardProps> = ({ song, onPress, rightAction }) => {
+const SongCard: React.FC<SongCardProps> = ({ song, onPress, showFavorite, rightAction }) => {
   const themeColors = Colors; // LIGHT MODE
 
   return (
@@ -68,8 +70,13 @@ const SongCard: React.FC<SongCardProps> = ({ song, onPress, rightAction }) => {
         </View>
       </View>
 
-      {/* RIGHT ACTION (Remove/Cancel button) */}
-      {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
+      {/* RIGHT ACTION */}
+      <View style={styles.rightAction}>
+        {rightAction}
+        {showFavorite && !rightAction && (
+          <FavoriteButton songId={song.id} theme={themeColors} />
+        )}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -98,5 +105,5 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: '600' },
   metaRow: { flexDirection: 'row', marginTop: 4 },
   meta: { fontSize: 12 },
-  rightAction: { marginLeft: 12 }, // spacing for the remove/cancel button
+  rightAction: { marginLeft: 12, flexDirection: 'row', alignItems: 'center' },
 });

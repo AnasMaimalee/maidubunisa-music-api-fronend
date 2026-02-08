@@ -201,24 +201,26 @@ export default function PlaylistScreen() {
       <FlatList
         data={playlists}
         keyExtractor={(item) => item.name}
-        horizontal
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.playlistCard, selectedPlaylist?.name === item.name && { borderColor: PRIMARY }]}
+            <TouchableOpacity
+            style={[styles.playlistRow, selectedPlaylist?.name === item.name && { borderColor: PRIMARY }]}
             onPress={() => openPlaylistModal(item)}
-          >
-            <View style={styles.playlistIcon}>
-              <IconSymbol name="music.note.list" size={24} color={PRIMARY} />
+            >
+            <View style={styles.playlistIconRow}>
+                <IconSymbol name="music.note.list" size={36} color={PRIMARY} />
             </View>
-            <Text style={styles.playlistName}>{item.name}</Text>
-            <Text style={styles.playlistCount}>
-              {item.songs.length} {item.songs.length === 1 ? 'song' : 'songs'}
-            </Text>
-          </TouchableOpacity>
+            <View style={styles.playlistInfo}>
+                <Text style={styles.playlistName}>{item.name}</Text>
+                <Text style={styles.playlistCount}>
+                {item.songs.length} {item.songs.length === 1 ? 'song' : 'songs'}
+                </Text>
+            </View>
+            </TouchableOpacity>
         )}
-      />
+        />
+
 
       {/* SINGLE MODAL FOR ALL PURPOSES */}
       <Modal
@@ -320,7 +322,32 @@ export default function PlaylistScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { backgroundColor: PRIMARY, height: 60, justifyContent: 'center', alignItems: 'center' },
+    playlistRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: CARD,
+  padding: 12,
+  marginBottom: 12,
+  borderRadius: 12,
+  borderWidth: 2,
+  borderColor: 'transparent',
+},
+playlistIconRow: {
+  width: 48,
+  height: 48,
+  borderRadius: 12,
+  backgroundColor: ICON_BG,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 12,
+},
+playlistInfo: {
+  flex: 1,
+},
+playlistName: { fontWeight: '600', color: TEXT, fontSize: 16 },
+playlistCount: { fontSize: 12, color: '#555', marginTop: 2 },
+
+  header: { backgroundColor: PRIMARY, height: 80, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   addPlaylistContainer: { paddingHorizontal: 16, paddingVertical: 12 },
   addPlaylistButton: {
@@ -345,8 +372,6 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   playlistIcon: { width: 40, height: 40, borderRadius: 8, backgroundColor: ICON_BG, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  playlistName: { fontWeight: '600', color: TEXT, fontSize: 14 },
-  playlistCount: { fontSize: 12, color: '#555' },
   modalOverlay: { flex: 1, backgroundColor: '#00000066', justifyContent: 'center', alignItems: 'center' },
   modalContent: { width: '80%', backgroundColor: BG, borderRadius: 16, padding: 16 },
   modalContentLarge: { width: '90%', maxHeight: '80%', backgroundColor: BG, borderRadius: 16, padding: 16 },
